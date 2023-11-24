@@ -10,20 +10,27 @@
             background-color: #f5f5f5;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
 
         h1 {
             text-align: center;
             color: #333;
+            margin-bottom: 20px;
         }
 
         form {
             max-width: 400px;
-            margin: 20px auto;
+            width: 100%;
             padding: 20px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
+            box-sizing: border-box;
         }
 
         label {
@@ -32,20 +39,23 @@
             color: #333;
         }
 
-        input {
-            width: 100%;
+        input, button {
+            width: calc(100% - 16px);
             padding: 8px;
             margin-bottom: 15px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
 
-        input[type="submit"] {
+        input[type="submit"], button {
             background-color: #4caf50;
             color: #fff;
             cursor: pointer;
+            border: none;
         }
 
-        input[type="submit"]:hover {
+        input[type="submit"]:hover, button:hover {
             background-color: #45a049;
         }
 
@@ -55,25 +65,72 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        #map {
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>XGBoost Prediction Web App</h1>
+    <h1>Earthquake Prediction Web App</h1>
     <form action="/predict" method="post">
         <label for="Latitude">Latitude:</label>
-        <input type="text" name="Latitude" required>
+        <input type="text" id="latitude" name="Latitude" required>
 
         <label for="Longitude">Longitude:</label>
-        <input type="text" name="Longitude" required>
+        <input type="text" id="longitude" name="Longitude" required>
 
         <label for="Depth">Depth:</label>
         <input type="text" name="Depth" required>
+
+        <!-- Add the "Get Location" button -->
+        <button type="button" onclick="getLocation()">Get Location</button>
 
         <input type="submit" value="Predict">
     </form>
 
     {% if prediction %}
         <p>{{ prediction }}</p>
+       
+        <div id="map"></div>
+        <script>
+            // Initialize Google Map with the predicted latitude and longitude
+            function initMap() {
+                var latitude = {{ latitude }};
+                var longitude = {{ longitude }};
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: latitude, lng: longitude },
+                    zoom: 8
+                });
+                var marker = new google.maps.Marker({
+                    position: { lat: latitude, lng: longitude },
+                    map: map,
+                    title: 'Predicted Location'
+                });
+            }
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvmIp7zSfTcAdrdysFi6DXp34m9qNyVlE&callback=initMap" async defer></script>
     {% endif %}
+
+    <script>
+        // Function to get the user's current location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Function to display the user's current location
+        function showPosition(position) {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+        }
+    </script>
 </body>
 </html>

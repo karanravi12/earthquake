@@ -36,8 +36,8 @@ def predict():
         # Perform prediction using the loaded model
         prediction = model.predict(data)
 
-        # Output prediction
-        return render_template('index.html', prediction=f'The predicted value is: {prediction[0]}')
+        # Pass prediction to the template
+        return render_template('index.html', latitude=latitude, longitude=longitude, depth=depth, prediction=prediction[0])
 
 if __name__ == '__main__':
     app.run(debug=True)
